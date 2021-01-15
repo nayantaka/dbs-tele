@@ -1,10 +1,11 @@
 1. clone repo
 2. pip install virtualenv
 3. virtualenv virtualenv
-4. source /virtualenv/bin/activate
-5. pip install -r requirements.txt
-6. export FLASK_APP=main.py
-7. setting .env
-8. flask db upgrade
-9. flask seed run
-10. flask run
+4. For linux ==> source /virtualenv/bin/activate
+5. For windows ==> virtualenv\Scripts\activate
+6. pip install -r requirements.txt
+7. export FLASK_APP=main.py
+8. setting .env
+9. flask db upgrade
+10. flask seed run
+111. flask run
