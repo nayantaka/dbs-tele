@@ -1,0 +1,7 @@
+DEVELOPMENT
+======================================
+1. Clone this repo
+2. npm install
+3. cp .env.example .env
+4. Set .env with your current values
+5. npm run dev
