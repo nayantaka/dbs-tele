@@ -1,0 +1,32 @@
+.sidebar {
+  position: fixed;
+  width: 225px;
+  background-color: #212529;
+  height: calc(100vh - 56px);
+  transform: translateX(-225px);
+  z-index: $zindex-fixed;
+  @include transition(all .15s);
+  @include media-breakpoint-up(md) {
+    transform: translateX(0);
+  }
+}
+
+.sidebar-lists-title {
+  font: {
+    size: .75rem;
+    weight: bold;
+  }
+  text-transform: uppercase;
+  padding: 1.75rem 1rem 0.75rem;
+  color: rgba($white, .25);
+}
+
+.sidebar-menus-link {
+  display: block;
+  color: rgba($white, .5);
+  padding: 12px 16px;
+  @include hover-focus {
+    color: $white;
+    text-decoration: none;
+  }
+}

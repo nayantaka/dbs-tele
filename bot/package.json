@@ -1,0 +1,17 @@
+{
+  "name": "whatsapp-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Toriq Ahmad Salam",
+  "license": "ISC",
+  "dependencies": {
+    "@adiwajshing/baileys": "^3.2.2",
+    "axios": "^0.21.0",
+    "dotenv": "^8.2.0",
+    "telegraf": "^3.38.0"
+  }
+}

@@ -1,0 +1,10 @@
+1. clone repo
+2. pip install virtualenv
+3. virtualenv virtualenv
+4. source /virtualenv/bin/activate
+5. pip install -r requirements.txt
+6. export FLASK_APP=main.py
+7. setting .env
+8. flask db upgrade
+9. flask seed run
+10. flask run
