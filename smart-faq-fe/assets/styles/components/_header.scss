@@ -1,0 +1,6 @@
+.header-bars {
+  color: rgba(white, .5);
+  @include hover-focus {
+    color: rgba(white, .75)
+  }
+}
