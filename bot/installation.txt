@@ -1,0 +1,8 @@
+1. Clone this repo
+2. npm install
+3. If you run in local server, tunnel it first with ngrok or localtunnel
+4. with ngrok ==> ngrok http 4000
+5. with localtunnel ==> lt -p 4000
+6. Set your .env with your current env values. Note: fill telegram webhook with tunnel address from ngrok or localtunnel, ex: https://ngrok.com
+7. node index.js
+8. scan barcode with your whatsapp
