@@ -5,12 +5,12 @@
         <b-card-header class="d-flex align-items-center ">
           Api Key Lists
           <b-button-group class="ml-auto" size="sm">
-            <b-button variant="primary" :disabled="$fetchState.pending" @click="createApi">
+            <b-button variant="primary" :disabled="$fetchState.pending" aria-label="Buat api key" @click="createApi">
               <fa-layers class="fa-fw">
                 <fa-icon :icon="['fas', 'plus']" />
               </fa-layers>
             </b-button>
-            <b-button variant="info" :disabled="$fetchState.pending" @click="refetch">
+            <b-button variant="info" :disabled="$fetchState.pending" aria-label="Muat ulang" @click="refetch">
               <fa-layers class="fa-fw">
                 <fa-icon :icon="['fas', 'sync']" spin />
               </fa-layers>
@@ -26,12 +26,12 @@
         >
           <template #cell(actions)="{item}">
             <b-button-group size="sm">
-              <b-button variant="primary" @click="copyFile(item)">
+              <b-button variant="primary" aria-label="Salin api key" @click="copyFile(item)">
                 <fa-layers class="fa-fw">
                   <fa-icon :icon="['fas', 'copy']" />
                 </fa-layers>
               </b-button>
-              <b-button variant="danger" @click="clickActions(item)">
+              <b-button variant="danger" aria-label="Hapus api key" @click="clickActions(item)">
                 <fa-layers class="fa-fw">
                   <fa-icon :icon="['fas', 'trash']" />
                 </fa-layers>
@@ -60,7 +60,13 @@ export default {
   async fetch () {
     try {
       await this.$store.dispatch('apikey/getAll')
-    } catch (err) {}
+    } catch (err) {
+      this.$tools.notification({
+        title: 'Error',
+        type: 'error',
+        message: err.message
+      })
+    }
   },
   data () {
     return {

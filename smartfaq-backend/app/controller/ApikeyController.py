@@ -1,5 +1,5 @@
 import sys
-from flask import request
+from flask import request, abort
 from app.model.apikey import Apikey
 from app import app, db, responses
 from flask_jwt_extended import *
@@ -9,15 +9,18 @@ from app.exception.DuplicateException import DuplicateException
 @jwt_required
 def index():
     current_user = get_jwt_identity()
-    page = 1
-    per_page = 50
     apis = Apikey.query
 
-    if request.args.get('page') is not None:
-        page = int(request.args.get('page'))
+    try:
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 50))
+    except ValueError:
+        abort(400, description="invalid pagination parameter")
 
-    if request.args.get('per_page') is not None:
-        per_page = int(request.args.get('per_page'))
+    if page < 1 or per_page < 1:
+        abort(400, description="invalid pagination parameter")
+
+    per_page = min(per_page, 100)
 
     if (current_user['id'] is not None):
         apis = apis.filter(Apikey.user_id == current_user['id'])

@@ -1,10 +1,4 @@
-export default function ({ store, redirect }) {
-  const token = store.getters['authorization/token']
-  const refresh_token = store.getters['authorization/refresh_token']
-  if (_.isEmpty(refresh_token)) {
-    return redirect('/login')
-  }
-  if (!_.isEmpty(token) && !_.isEmpty(refresh_token)) {
-    return redirect('/')
-  }
+// Pass-through: refresh handle oleh cookie & interceptor axios, bukan route khusus.
+export default function () {
+  return true
 }

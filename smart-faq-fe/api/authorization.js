@@ -10,10 +10,9 @@ export default {
   },
   async refresh () {
     try {
-      const { result: { access_token } } = await this.$axios.$post('/auth/refresh')
-      return {
-        token: access_token
-      }
+      // Token diperbarui lewat HttpOnly cookie; tidak ada token di body
+      await this.$axios.$post('/auth/refresh')
+      return Promise.resolve()
     } catch (err) {
       return Promise.reject(err)
     }
@@ -28,12 +27,19 @@ export default {
   },
   async login (data) {
     try {
-      const { result: { access_token, refresh_token, data: info } } = await this.$axios.$post('/auth/login', data)
+      // Token dikelola server lewat HttpOnly cookie; hanya data user yang dikembalikan
+      const { result: { data: info } } = await this.$axios.$post('/auth/login', data)
       return {
-        token: access_token,
-        refresh_token,
         info
       }
+    } catch (err) {
+      return Promise.reject(err)
+    }
+  },
+  async logout () {
+    try {
+      await this.$axios.$post('/auth/logout')
+      return Promise.resolve()
     } catch (err) {
       return Promise.reject(err)
     }

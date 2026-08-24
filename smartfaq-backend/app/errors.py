@@ -8,57 +8,63 @@ from app.exception.NotFoundException import NotFoundException
 from app.exception.DuplicateException import DuplicateException
 
 @app.errorhandler(Exception)
-def server_error(err):
+def handle_internal_error(err):
     print(err, file=sys.stdout)
     res = {
         'success': False,
 		'message': "internal server error"
 	}
 
-    return res, 500
+    return make_response(jsonify(res)), 500
 
 @app.errorhandler(NotFoundException)
-def server_error(err):
+def handle_not_found(err):
     res = {
         'success': False,
 		'message': err.message
 	}
 
-    return res, 404
+    return make_response(jsonify(res)), 404
 
 @app.errorhandler(DuplicateException)
-def server_error(err):
+def handle_duplicate(err):
     res = {
         'success': False,
 		'message': err.message
 	}
 
-    return res, 409
+    return make_response(jsonify(res)), 409
 
 @app.errorhandler(PasswordNotMatch)
-def server_error(err):
+def handle_password_not_match(err):
     res = {
         'success': False,
 		'message': err.message
 	}
 
-    return res, 401
+    return make_response(jsonify(res)), 401
 
 @app.errorhandler(ApikeyException)
-def apikey(err):
+def handle_apikey(err):
     res = {
         'success': False,
 		'message': err.message
 	}
 
-    return res, 400
+    return make_response(jsonify(res)), 400
 
 @app.errorhandler(400)
 def bad_request(err):
     if isinstance(err.description, ValidationError):
-        original_error = err.description
-        res = {
-            'success': False,
-            'message': original_error.message
-        }
-        return res, 400
+        message = err.description.message
+    else:
+        message = getattr(err, 'description', '')
+        if not isinstance(message, str) or not message:
+            message = 'bad request'
+
+    res = {
+        'success': False,
+        'message': message
+    }
+
+    return make_response(jsonify(res)), 400

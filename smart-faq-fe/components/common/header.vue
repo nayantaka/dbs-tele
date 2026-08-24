@@ -50,9 +50,10 @@ export default {
         }
       }
     },
-    clickLogout () {
-      this.$store.commit('authorization/setToken', '')
-      this.$store.commit('authorization/setRefreshToken', '')
+    async clickLogout () {
+      try {
+        await this.$store.dispatch('authorization/logout')
+      } catch (err) {}
       this.$store.commit('authorization/setInfo', {})
       this.$router.push('/login')
     }

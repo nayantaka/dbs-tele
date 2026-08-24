@@ -7,7 +7,7 @@ def ok(values, message = None):
 		'message': message
 	}
 
-	return make_response(jsonify(res)), 200
+	return make_response(jsonify(res), 200)
 
 def created(values, message = None):
     res = {
@@ -16,4 +16,4 @@ def created(values, message = None):
 		'message': message
 	}
 
-    return make_response(jsonify(res)), 201
+    return make_response(jsonify(res), 201)

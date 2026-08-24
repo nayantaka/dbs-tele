@@ -54,7 +54,7 @@ export const actions = {
       commit('setInfo', data)
       return Promise.resolve()
     } catch (err) {
-      return Promise.resolve()
+      return Promise.reject(err)
     }
   },
   async category ({ commit }, payload) {
@@ -63,7 +63,7 @@ export const actions = {
       commit('setCategory', data)
       return Promise.resolve()
     } catch (err) {
-      return Promise.resolve()
+      return Promise.reject(err)
     }
   },
   async create (_store, payload) {
@@ -71,7 +71,7 @@ export const actions = {
       await this.$api.dataset.create(payload)
       return Promise.resolve()
     } catch (err) {
-      return Promise.resolve()
+      return Promise.reject(err)
     }
   },
   async update (_store, payload) {
@@ -79,7 +79,7 @@ export const actions = {
       await this.$api.dataset.update(payload)
       return Promise.resolve()
     } catch (err) {
-      return Promise.resolve()
+      return Promise.reject(err)
     }
   },
   async delete (_store, payload) {
@@ -87,7 +87,7 @@ export const actions = {
       await this.$api.dataset.delete(payload)
       return Promise.resolve()
     } catch (err) {
-      return Promise.resolve()
+      return Promise.reject(err)
     }
   }
 }

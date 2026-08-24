@@ -1,6 +1,6 @@
 import sys
 from app import app, db
-from flask import request
+from flask import request, abort
 from flask_jwt_extended import *
 from app import responses as res
 from app.model.dataset import Dataset
@@ -12,14 +12,17 @@ from app.exception.DuplicateException import DuplicateException
 def index():
     current_response = get_jwt_identity()
     response = Response.query
-    page = 1
-    per_page = 50
 
-    if request.args.get('page') is not None:
-        page = int(request.args.get('page'))
+    try:
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 50))
+    except ValueError:
+        abort(400, description="invalid pagination parameter")
 
-    if request.args.get('per_page') is not None:
-        per_page = int(request.args.get('per_page'))
+    if page < 1 or per_page < 1:
+        abort(400, description="invalid pagination parameter")
+
+    per_page = min(per_page, 100)
 
     if request.args.get('response') is not None:
         response = response.filter(Response.response.like("%{}%".format(request.args.get('response'))))

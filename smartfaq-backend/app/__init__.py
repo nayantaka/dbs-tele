@@ -13,7 +13,7 @@ migrate = Migrate(app, db)
 seeder = FlaskSeeder()
 seeder.init_app(app, db)
 jwt = JWTManager(app)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": Config.CORS_ORIGINS, "supports_credentials": True}})
 
 from app.model import apikey, user, dataset, response
 from app import routes, errors

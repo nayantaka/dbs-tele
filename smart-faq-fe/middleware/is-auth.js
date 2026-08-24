@@ -1,7 +1,6 @@
 export default function ({ store, redirect }) {
-  const token = store.getters['authorization/token']
-  const refresh_token = store.getters['authorization/refresh_token']
-  if (_.isEmpty(token) && _.isEmpty(refresh_token)) {
+  const info = store.getters['authorization/info']
+  if (_.isEmpty(info)) {
     return redirect('/login')
   }
 }

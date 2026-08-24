@@ -9,8 +9,8 @@
   "author": "Toriq Ahmad Salam",
   "license": "ISC",
   "dependencies": {
-    "@adiwajshing/baileys": "^3.2.2",
-    "axios": "^0.21.0",
+    "@whiskeysockets/baileys": "^7.0.0-rc14",
+    "axios": "^1.19.0",
     "dotenv": "^8.2.0",
     "telegraf": "^3.38.0"
   }
