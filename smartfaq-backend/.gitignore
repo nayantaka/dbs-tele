@@ -1,0 +1,21 @@
+# Secret / environment — jangan pernah di-commit
+.env
+
+# Artefak model & ML
+*.pkl
+data-rnn-lstm.json
+model-rnn-lstm.h5
+
+# Python
+__pycache__/
+*.pyc
+virtualenv/
+.venv/
+
+# Data mentah yang tidak perlu di-repo
+CSVdataset - Sheet1.csv
+response.csv
+
+# IDE / sistem
+.idea/
+.DS_Store

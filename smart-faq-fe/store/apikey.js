@@ -47,7 +47,7 @@ export const actions = {
       commit('setInfo', data)
       return Promise.resolve()
     } catch (err) {
-      return Promise.resolve()
+      return Promise.reject(err)
     }
   },
   async create (_store, payload) {
@@ -55,7 +55,7 @@ export const actions = {
       await this.$api.apikey.create(payload)
       return Promise.resolve()
     } catch (err) {
-      return Promise.resolve()
+      return Promise.reject(err)
     }
   },
   async update (_store, payload) {
@@ -63,7 +63,7 @@ export const actions = {
       await this.$api.apikey.update(payload)
       return Promise.resolve()
     } catch (err) {
-      return Promise.resolve()
+      return Promise.reject(err)
     }
   },
   async delete (_store, payload) {
@@ -71,7 +71,7 @@ export const actions = {
       await this.$api.apikey.delete(payload)
       return Promise.resolve()
     } catch (err) {
-      return Promise.resolve()
+      return Promise.reject(err)
     }
   }
 }

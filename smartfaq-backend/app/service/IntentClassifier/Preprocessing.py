@@ -1,6 +1,6 @@
 # import nltk
+import json
 import string
-import pickle
 from sklearn.preprocessing import LabelEncoder
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
@@ -70,7 +70,13 @@ class Embedding:
                     self.label[l] = intent
 
     def save(self):
-        pickle.dump({'intent': self.label, 'sentence': self.sentence}, open("data-rnn-lstm.pkl", "wb"))
+        # JSON alih-alih pickle: menghindari deserialisasi objek Python yang tidak aman
+        data = {
+            'intent': {int(k): v for k, v in self.label.items()},
+            'sentence': self.sentence
+        }
+        with open("data-rnn-lstm.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False)
 
 class Stemmer:
     def __init__(self):

@@ -6,8 +6,13 @@ const TelegramBot = async () => {
   try {
     const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN)
     bot.on('message', async (ctx) => {
+      // Abaikan pesan non-teks (foto, voice, sticker, dll.)
+      if (typeof ctx.message.text !== 'string' || ctx.message.text.length === 0) {
+        return
+      }
+
       const response = await getResponse(ctx.message.text)
-      ctx.reply(response.response)
+      ctx.reply(response && response.response ? response.response : 'Maaf terjadi kesalahan sistem')
     })
 
     // Start webhook via launch (preffered)

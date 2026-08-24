@@ -8,10 +8,15 @@ from app.controller import DatasetController
 from app.controller import ResponseController
 from app.controller import TrainController
 from flask_expects_json import expects_json
+from flask_jwt_extended import jwt_required
+from app.middleware.ratelimit import rate_limit
 
 from app.schema import UserSchema
+from app.schema import DatasetSchema
+from app.schema import ResponseSchema
 
 @app.route('/auth/login', methods=['POST'])
+@rate_limit(limit=10, window=60, key_func=lambda: request.remote_addr)
 def login():
 	return AuthController.login()
 
@@ -24,11 +29,17 @@ def register():
 def refresh():
     return AuthController.refresh()
 
+@app.route('/auth/logout', methods=['POST'])
+def logout():
+    return AuthController.logout()
+
 @app.route('/dataset/category', methods=['GET'])
+@jwt_required
 def datasetCategory():
 	return DatasetController.getCategory()
 
 @app.route('/dataset', methods=['GET', 'POST'])
+@expects_json(DatasetSchema.dataset_create_schema, ignore_for=['GET'])
 def datasets():
 	if request.method == 'GET':
 		return DatasetController.index()
@@ -36,6 +47,7 @@ def datasets():
 		return DatasetController.store()
 
 @app.route('/dataset/<id>', methods=['PUT', 'GET', 'DELETE'])
+@expects_json(DatasetSchema.dataset_update_schema, ignore_for=['GET', 'DELETE'])
 def datasetDetail(id):
 	if request.method == 'GET':
   		return DatasetController.show(id)
@@ -45,10 +57,12 @@ def datasetDetail(id):
 		return DatasetController.delete(id)
 
 @app.route('/response/category', methods=['GET'])
+@jwt_required
 def responseCategory():
 	return ResponseController.getCategory()
 
 @app.route('/response', methods=['GET', 'POST'])
+@expects_json(ResponseSchema.response_create_schema, ignore_for=['GET'])
 def response():
 	if request.method == 'GET':
 		return ResponseController.index()
@@ -56,6 +70,7 @@ def response():
 		return ResponseController.store()
 
 @app.route('/response/<id>', methods=['PUT', 'GET', 'DELETE'])
+@expects_json(ResponseSchema.response_update_schema, ignore_for=['GET', 'DELETE'])
 def responseDetail(id):
 	if request.method == 'GET':
   		return ResponseController.show(id)
@@ -66,6 +81,7 @@ def responseDetail(id):
 
 @app.route('/user', methods=['GET', 'POST'])
 @expects_json(UserSchema.user_create_schema, ignore_for=['GET'])
+@jwt_required
 def users():
 	if request.method == 'GET':
 		return UserController.index()
@@ -99,6 +115,7 @@ def apiDetail(id):
 		return ApikeyController.delete(id)
 
 @app.route('/predict')
+@rate_limit(limit=120, window=60, key_func=lambda: request.headers.get('x-api-key', request.remote_addr))
 def index():
 	sentence = request.args.get('sentence')
 	return PredictController.index(sentence)

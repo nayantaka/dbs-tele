@@ -1,7 +1,5 @@
-export default function ({ store, redirect }) {
-  const token = store.getters['authorization/token']
-  const refresh_token = store.getters['authorization/refresh_token']
-  if (_.isEmpty(token) && !_.isEmpty(refresh_token)) {
-    return redirect('/refresh')
-  }
+// Token kini di-manage lewat HttpOnly cookie; refresh otomatis oleh interceptor axios.
+// Middleware ini dipertahankan sebagai pass-through agar route yang menyarankannya tetap valid.
+export default function () {
+  return true
 }

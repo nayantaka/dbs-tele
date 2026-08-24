@@ -10,6 +10,8 @@ from app.middleware.checkapikey import apikey
 from app import db
 import sys
 import random
+from flask import abort
+from app.service.IntentClassifier.Preprocessing import Embedding, Stemmer
 
 if (db.engine.dialect.has_table(db.engine, 'dataset')):
 	df = pd.read_sql(Dataset.query.statement, Dataset.query.session.bind)
@@ -18,11 +20,16 @@ if (db.engine.dialect.has_table(db.engine, 'dataset')):
 
 @apikey
 def index(sentence):
-		result = {}
+		if not sentence or not isinstance(sentence, str):
+			abort(400, description="sentence is required")
+
+		if len(sentence) > 500:
+			abort(400, description="sentence too long (max 500 characters)")
+
 		result = predict.predict(sentence)
 
 		if result is None:
-			result['intent'] = 'unknown'
+			result = {'sentence': sentence, 'intent': 'unknown', 'score': -1}
 
 		response = Response.query.filter(Response.intent == result['intent']).all()
 

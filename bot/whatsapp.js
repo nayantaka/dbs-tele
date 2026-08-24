@@ -1,85 +1,70 @@
-const fs = require('fs')
 require('dotenv').config()
 const getResponse = require('./response')
-const Baileys = require('@adiwajshing/baileys')
+const {
+  default: makeWASocket,
+  useMultiFileAuthState,
+  DisconnectReason,
+  Browsers,
+  fetchLatestBaileysVersion,
+  isJidGroup,
+  getContentType
+} = require('@whiskeysockets/baileys')
 
 const WhatsappBot = async () => {
   try {
-    const connection = new Baileys.WAConnection()
-    connection.autoReconnect = Baileys.ReconnectMode.onAllErrors
-    connection.connectOptions.maxRetries = 5
-    connection.chatOrderingKey = Baileys.waChatKey(true)
+    const { state, saveCreds } = await useMultiFileAuthState('auth_info')
+    const { version, isLatest } = await fetchLatestBaileysVersion()
+    console.log('using WhatsApp version', version.join('.'), '| is latest:', isLatest)
 
-    connection.on('credentials-updated', () => {
-      const authInfo = connection.base64EncodedAuthInfo()
-      fs.writeFileSync('./auth_info.json', JSON.stringify(authInfo, null, '\t'))
+    const sock = makeWASocket({
+      auth: state,
+      printQRInTerminal: true,
+      browser: Browsers.macOS('Smart FAQ'),
+      version
     })
 
-    fs.existsSync('./auth_info.json') && connection.loadAuthInfo ('./auth_info.json')
+    sock.ev.on('creds.update', saveCreds)
 
-    await connection.connect()
-
-    connection.on('open', () => {
-      console.log('whatsapp connected successfully')
-      console.log(`welcome ${connection.user.name} (${connection.user.jid})`)
-    })
-
-    connection.on('close', (err) => {
-      console.error(`connection was closed due ${err.reason}. reconnecting status: ${err.isReconnecting}`)
-    })
-
-    connection.on('CB:action,,battery', (json) => {
-      let batteryLevel = json[2][0][1].value
-      batterylevel = parseInt(batteryLevel)
-      console.log('battery level: ' + batterylevel)
-    })
-
-    connection.on('connection-phone-change', (state) => {
-      console.log(`connection was changed. connection status: ${state.connected}`)
-    })
-
-    connection.on('message-new', async (message) => {
-      console.log(`new message received`)
-      const messageStubType = Baileys.WA_MESSAGE_STUB_TYPES[message.messageStubType] ?
-        Baileys.WA_MESSAGE_STUB_TYPES[message.messageStubType] : 'MESSAGE'
-
-      const messageContent = message.message
-
-      if (!messageContent) return
-
-      if (message.key.fromMe) {
-        console.log(`relayed my own message`)
-        return
+    sock.ev.on('connection.update', (update) => {
+      const { connection, lastDisconnect } = update
+      if (connection === 'close') {
+        const code = lastDisconnect &&
+          lastDisconnect.error &&
+          lastDisconnect.error.output &&
+          lastDisconnect.error.output.statusCode
+        console.log('connection closed due to:', code, code ? DisconnectReason[code] : '')
+      } else if (connection === 'open') {
+        console.log('whatsapp connected successfully')
       }
+      console.log('connection status:', connection)
+    })
 
-      let sender = message.key.remoteJid
+    sock.ev.on('messages.upsert', async ({ messages, type }) => {
+      if (type !== 'notify') return
 
-      if (sender == 'status@broadcast') return
-      if (sender.includes('@g.us')) return
+      const message = messages[0]
+      if (!message.message || message.key.fromMe) return
 
-      const messageType = Object.keys(messageContent)[0]
-      let text
+      const sender = message.key.remoteJid
+      if (sender === 'status@broadcast' || isJidGroup(sender)) return
 
-      if (messageType == Baileys.MessageType.text) {
+      // Abaikan pesan yang tidak punya teks yang bisa diolah
+      const contentType = getContentType(message.message)
+      let text = ''
+      if (contentType === 'conversation') {
         text = message.message.conversation
-      }
-      else if (messageType == Baileys.MessageType.extendedText) {
+      } else if (contentType === 'extendedTextMessage') {
         text = message.message.extendedTextMessage.text
-        const quotedText = message.message
       }
+
+      if (!text || typeof text !== 'string') return
 
       const response = await getResponse(text)
-      await sendMessage(message, response.response)
+      const reply = response && response.response ? response.response : 'Maaf terjadi kesalahan sistem'
+      await sock.sendMessage(message.key.remoteJid, { text: reply })
     })
-
-    const sendMessage = async (message, content) => {
-      await connection.chatRead(message.key.remoteJid)
-      await connection.updatePresence(message.key.remoteJid, Baileys.Presence.available)
-      await connection.updatePresence(message.key.remoteJid, Baileys.Presence.composing)
-      await connection.sendMessage(message.key.remoteJid, content, Baileys.MessageType.text)
-    }
-  }
-  catch (err) {
+  } catch (err) {
+    console.error('WhatsappBot error:', err)
     return err
   }
 }

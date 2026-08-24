@@ -1,16 +1,10 @@
 import createPersistedState from 'vuex-persistedstate'
-import SecureLS from 'secure-ls'
-
-const ls = new SecureLS({ isCompression: true })
 
 export default function ({ store }) {
   createPersistedState({
     key: 'smartfaq',
-    paths: ['authorization.token', 'authorization.refresh_token', 'authorization.info'],
-    storage: {
-      getItem: key => ls.get(key),
-      setItem: (key, value) => ls.set(key, value),
-      removeItem: key => ls.remove(key)
-    }
+    // Hanya info non-sensitif (nama/email) yang dipersistensikan di localStorage polos.
+    // Token hidup di HttpOnly cookie, dan secure-ls/crypto-js (yang rentan) sudah tidak digunakan.
+    paths: ['authorization.info']
   })(store)
 }

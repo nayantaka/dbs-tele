@@ -1,4 +1,5 @@
 from app.model.user import User
+import os
 import random
 import string
 from flask_seeder import Seeder, Faker, generator
@@ -24,14 +25,20 @@ class UserSeeder(Seeder):
 
     # run() will be called by Flask-Seeder
     def run(self):
+        # Jangan hardcode kredensial. Baca dari env; fallback acak jika tidak diset.
+        password = os.environ.get('SEED_ADMIN_PASSWORD')
+        if not password:
+            password = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+            print("SEED_ADMIN_PASSWORD not set; generated temporary password:", password)
+
         # Create a new Faker and tell it how to create User objects
         faker = Faker(
             cls=User,
             init={
-                "name": 'admin',
-                "username": 'admin',
-                "email": 'admin@admin.com',
-                "password": "secret"
+                "name": os.environ.get('SEED_ADMIN_NAME', 'admin'),
+                "username": os.environ.get('SEED_ADMIN_USERNAME', 'admin'),
+                "email": os.environ.get('SEED_ADMIN_EMAIL', 'admin@admin.com'),
+                "password": password
             }
         )
 

@@ -8,12 +8,12 @@
         <b-card-header class="d-flex align-items-center ">
           Response Lists
           <b-button-group class="ml-auto" size="sm">
-            <b-button variant="primary" :disabled="$fetchState.pending" @click="modal.tambah = true">
+            <b-button variant="primary" :disabled="$fetchState.pending" aria-label="Tambah response" @click="modal.tambah = true">
               <fa-layers class="fa-fw">
                 <fa-icon :icon="['fas', 'plus']" />
               </fa-layers>
             </b-button>
-            <b-button variant="info" :disabled="$fetchState.pending" @click="refetch">
+            <b-button variant="info" :disabled="$fetchState.pending" aria-label="Muat ulang" @click="refetch">
               <fa-layers class="fa-fw">
                 <fa-icon :icon="['fas', 'sync']" spin />
               </fa-layers>
@@ -38,12 +38,12 @@
           </template>
           <template #cell(actions)="{item}">
             <b-button-group size="sm">
-              <b-button variant="primary" @click="clickActions(item, 'edit')">
+              <b-button variant="primary" aria-label="Edit response" @click="clickActions(item, 'edit')">
                 <fa-layers class="fa-fw">
                   <fa-icon :icon="['fas', 'edit']" />
                 </fa-layers>
               </b-button>
-              <b-button variant="danger" @click="clickActions(item, 'delete')">
+              <b-button variant="danger" aria-label="Hapus response" @click="clickActions(item, 'delete')">
                 <fa-layers class="fa-fw">
                   <fa-icon :icon="['fas', 'trash']" />
                 </fa-layers>
@@ -74,14 +74,26 @@ export default {
   async fetch () {
     try {
       await this.$store.dispatch('response/category')
-    } catch (err) {}
+    } catch (err) {
+      this.$tools.notification({
+        title: 'Error',
+        type: 'error',
+        message: err.message
+      })
+    }
     try {
       await this.$store.dispatch('response/getAll', {
         ...this.cari,
         page: this.page,
         per_page: this.perpage
       })
-    } catch (err) {}
+    } catch (err) {
+      this.$tools.notification({
+        title: 'Error',
+        type: 'error',
+        message: err.message
+      })
+    }
   },
   data () {
     return {

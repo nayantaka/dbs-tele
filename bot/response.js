@@ -13,6 +13,8 @@ module.exports = async (question) => {
     return res.data.result
   }
   catch (err) {
+    const status = err.response ? err.response.status : 'no-response'
+    console.error(`[predict] call failed (status: ${status}):`, err.message)
     return `Maaf terjadi kesalahan sistem`
   }
 }

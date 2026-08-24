@@ -5,7 +5,10 @@ from app.model.user import User
 from app import app, db, responses
 from app.exception.PasswordNotMatch import PasswordNotMatch
 from app.exception.NotFoundException import NotFoundException
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_refresh_token_required, get_jwt_identity
+from flask_jwt_extended import (
+    create_access_token, create_refresh_token, jwt_refresh_token_required, get_jwt_identity,
+    set_access_cookies, set_refresh_cookies, unset_jwt_cookies
+)
 
 
 def login():
@@ -21,17 +24,17 @@ def login():
 
     data = singleTransform(user)
     expires = datetime.timedelta(days=1)
-    print(expires, file=sys.stdout)
     expires_refresh = datetime.timedelta(days=3)
     access_token = create_access_token(
         data, fresh=False, expires_delta=expires)
     refresh_token = create_refresh_token(data, expires_delta=expires_refresh)
 
-    return responses.ok({
-        'data': data,
-        'access_token': access_token,
-        'refresh_token': refresh_token
-    }, "successfully logged in")
+    resp = responses.ok({'data': data}, "successfully logged in")
+    # Token disimpan di HttpOnly cookie (ada header CSRF terpisah), bukan di body
+    set_access_cookies(resp, access_token)
+    set_refresh_cookies(resp, refresh_token)
+
+    return resp
 
 
 @jwt_refresh_token_required
@@ -41,9 +44,17 @@ def refresh():
     new_token = create_access_token(identity=user, fresh=False)
     refresh_token = create_refresh_token(user, expires_delta=expires_refresh)
 
-    return responses.ok({
-        "access_token": new_token
-    }, "successfully update access token")
+    resp = responses.ok({}, "successfully update access token")
+    set_access_cookies(resp, new_token)
+    set_refresh_cookies(resp, refresh_token)
+
+    return resp
+
+
+def logout():
+    resp = responses.ok({}, "successfully logged out")
+    unset_jwt_cookies(resp)
+    return resp
 
 
 def singleTransform(users):

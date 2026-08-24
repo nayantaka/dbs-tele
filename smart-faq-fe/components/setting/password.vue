@@ -28,7 +28,7 @@
         label-class="small"
       >
         <b-input
-          id="password"
+          id="kon_password"
           v-model="$v.form.kon_password.$model"
           type="password"
           placeholder="Kon. Password"
