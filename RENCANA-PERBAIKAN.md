@@ -272,6 +272,44 @@ lingkungan ini**:
 
 ---
 
+## Pembersihan riwayat git (secret lama)
+
+**Mengapa:** `bot/.env` dan `smartfaq-backend/.env` (berisi Telegram bot token, API key,
+`JWT_SECRET`, dsb.) pernah ter-commit. `git rm --cached` hanya berhenti melacak ke depan;
+**secret masih ada di riwayat commit** dan akan bocor siapa pun yang menarik riwayat lama.
+
+**⚠️ Operasi ini irreversible:** menulis ulang semua hash commit dan membutuhkan force-push.
+Semua orang yang sudah clone harus re-clone. Jangan jalankan tanpa koordinasi dengan tim.
+
+**Langkah (jalankan di mesin Anda, bukan otomatis oleh asisten):**
+1. Cadangkan remote/riwayat dulu (opsional): `git push origin master:backup-before-clean`.
+2. Instal filter (sekali): `pip install git-filter-repo`.
+3. Hapus path secret dari seluruh riwayat:
+   ```bash
+   git filter-repo --invert-paths \
+     --path bot/.env \
+     --path smartfaq-backend/.env \
+     --path smartfaq-backend/seeds/user.py
+   ```
+   (Tambahkan path lain bila ada file rahasia lain yang pernah ter-commit.)
+4. Tandai ulang `origin` (`git filter-repo` menghapus remote):
+   `git remote add origin https://github.com/nayantaka/dbs-tele.git`
+5. Force-push semua branch & tag:
+   ```bash
+   git push --force --all
+   git push --force --tags
+   ```
+6. Semua klon lain harus diminta re-clone (`git fetch` tidak cukup — riwayat berubah).
+7. **Putar semua secret** yang pernah ada di riwayat (Telegram bot token via BotFather,
+   regenerate API key di DB, ganti password admin) — anggap semuanya sudah bocor.
+
+**Kontrol:** pastikan secret benar-benar hilang:
+```bash
+git grep -iE "1382696353|b-9Jvv|unisbank" $(git rev-list --all) || echo "bersih"
+```
+
+---
+
 ## Kriteria Penerimaan Umum
 
 - [ ] Tidak ada secret live di working tree / git history (`git grep -i "unicbank\|1382696353\|b-9Jvv"`).
